@@ -3,13 +3,11 @@ package com.jhoves.derliderli.api;
 import com.jhoves.derliderli.api.support.UserSupport;
 import com.jhoves.derliderli.domain.JsonResponse;
 import com.jhoves.derliderli.domain.User;
+import com.jhoves.derliderli.domain.UserInfo;
 import com.jhoves.derliderli.service.UserService;
 import com.jhoves.derliderli.service.util.RSAUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * @author JHoves
@@ -52,4 +50,22 @@ public class UserApi {
         return new JsonResponse<>(token);
     }
 
+
+    //更新用户信息
+    @PutMapping("/users")
+    public JsonResponse<String> updateUsers(@RequestBody User user) throws Exception{
+        Long userId = userSupport.getCurrentUserId();
+        user.setId(userId);
+        userService.updateUsers(user);
+        return JsonResponse.success();
+    }
+
+    //更新用户基本信息
+    @PutMapping("/users-infos")
+    public JsonResponse<String> updateUserInfos(@RequestBody UserInfo userInfo){
+        Long userId = userSupport.getCurrentUserId();
+        userInfo.setUserId(userId);
+        userService.updateUserInfos(userInfo);
+        return JsonResponse.success();
+    }
 }

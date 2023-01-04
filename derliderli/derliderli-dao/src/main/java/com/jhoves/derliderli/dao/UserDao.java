@@ -25,4 +25,12 @@ public interface UserDao {
 
     //根据用户id获取用户具体信息
     UserInfo getUserInfoByUserId(Long userId);
+
+    //更新用户信息
+    Integer updateUsers(User user);
+
+    //更新用户具体信息
+    Integer updateUserInfos(UserInfo userInfo);
+
+
 }
