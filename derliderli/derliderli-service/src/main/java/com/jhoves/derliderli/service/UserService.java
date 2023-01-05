@@ -1,6 +1,8 @@
 package com.jhoves.derliderli.service;
 
+import com.alibaba.fastjson.JSONObject;
 import com.jhoves.derliderli.dao.UserDao;
+import com.jhoves.derliderli.domain.PageResult;
 import com.jhoves.derliderli.domain.User;
 import com.jhoves.derliderli.domain.UserInfo;
 import com.jhoves.derliderli.domain.constant.UserConstant;
@@ -12,6 +14,7 @@ import com.mysql.cj.util.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -127,5 +130,19 @@ public class UserService {
 
     public List<UserInfo> getUserInfoByUserIds(Set<Long> userIdList) {
         return userDao.getUserInfoByUserIds(userIdList);
+    }
+
+    public PageResult<UserInfo> pageListUserInfos(JSONObject params) {
+        Integer no = params.getInteger("no");
+        Integer size = params.getInteger("size");
+        //数据库分页查询条件
+        params.put("star",(no-1)*size);
+        params.put("limit",size);
+        Integer total = userDao.pageCountUserInfos(params);
+        List<UserInfo> list = new ArrayList<>();
+        if(total > 0){
+            list = userDao.pageListUserInfos(params);
+        }
+        return new PageResult<>(total,list);
     }
 }

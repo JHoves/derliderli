@@ -44,9 +44,26 @@ public class UserFollowingApi {
 
     //获取用户粉丝列表
     @GetMapping("/user-fans")
-    public JsonResponse<List<UserFollowing>> getUserfans(){
+    public JsonResponse<List<UserFollowing>> getUserFans(){
         Long userId = userSupport.getCurrentUserId();
         List<UserFollowing> result = userFollowingService.getUserFans(userId);
         return new JsonResponse<>(result);
+    }
+
+    //添加用户关注分组
+    @PostMapping("/user-following-groups")
+    public JsonResponse<Long> addUserFollowingGroups(@RequestBody FollowingGroup followingGroup){
+        Long userId = userSupport.getCurrentUserId();
+        followingGroup.setUserId(userId);
+        Long groupId = userFollowingService.addUserFollowingGroup(followingGroup);
+        return new JsonResponse<>(groupId);
+    }
+
+    //获取用户关注分组
+    @GetMapping("/user-following-groups")
+    public JsonResponse<List<FollowingGroup>> getUserFollowingGroups(){
+        Long userId = userSupport.getCurrentUserId();
+        List<FollowingGroup> list = userFollowingService.getUserFollowingGroups(userId);
+        return new JsonResponse<>(list);
     }
 }

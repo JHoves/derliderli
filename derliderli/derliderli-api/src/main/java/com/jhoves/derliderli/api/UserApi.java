@@ -1,13 +1,16 @@
 package com.jhoves.derliderli.api;
 
+import com.alibaba.fastjson.JSONObject;
 import com.jhoves.derliderli.api.support.UserSupport;
-import com.jhoves.derliderli.domain.JsonResponse;
-import com.jhoves.derliderli.domain.User;
-import com.jhoves.derliderli.domain.UserInfo;
+import com.jhoves.derliderli.domain.*;
+import com.jhoves.derliderli.service.UserFollowingService;
 import com.jhoves.derliderli.service.UserService;
 import com.jhoves.derliderli.service.util.RSAUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import sun.nio.cs.US_ASCII;
+
+import java.util.List;
 
 /**
  * @author JHoves
@@ -20,6 +23,8 @@ public class UserApi {
     private UserService userService;
     @Autowired
     private UserSupport userSupport;
+    @Autowired
+    private UserFollowingService userFollowingService;
 
     //获取用户信息
     @GetMapping("/users")
@@ -67,5 +72,23 @@ public class UserApi {
         userInfo.setUserId(userId);
         userService.updateUserInfos(userInfo);
         return JsonResponse.success();
+    }
+
+    //用户分页查询
+    @GetMapping("/user-infos")
+    public JsonResponse<PageResult<UserInfo>> pageListUserInfos(@RequestParam Integer no,@RequestParam Integer size,String nick){
+        Long userId = userSupport.getCurrentUserId();
+        JSONObject params = new JSONObject();
+        params.put("no",no);
+        params.put("size",size);
+        params.put("nick",nick);
+        params.put("userId",userId);
+        PageResult<UserInfo> result = userService.pageListUserInfos(params);
+        //判断用户关注是否被当前用户关注
+        if(result.getTotal() > 0){
+            List<UserInfo> checkedUserInfoList = userFollowingService.checkFollowingStatus(result.getList(), userId);
+            result.setList(checkedUserInfoList);
+        }
+        return new JsonResponse<>(result);
     }
 }

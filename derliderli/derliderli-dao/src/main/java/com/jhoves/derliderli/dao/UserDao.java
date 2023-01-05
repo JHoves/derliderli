@@ -1,10 +1,12 @@
 package com.jhoves.derliderli.dao;
 
+import com.alibaba.fastjson.JSONObject;
 import com.jhoves.derliderli.domain.User;
 import com.jhoves.derliderli.domain.UserInfo;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -37,4 +39,8 @@ public interface UserDao {
 
     //获取用户信息列表
     List<UserInfo> getUserInfoByUserIds(Set<Long> userIdList);
+
+    Integer pageCountUserInfos(Map<String,Object> params);
+
+    List<UserInfo> pageListUserInfos(Map<String,Object> params);
 }
