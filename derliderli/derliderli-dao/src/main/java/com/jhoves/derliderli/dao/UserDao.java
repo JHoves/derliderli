@@ -4,6 +4,9 @@ import com.jhoves.derliderli.domain.User;
 import com.jhoves.derliderli.domain.UserInfo;
 import org.apache.ibatis.annotations.Mapper;
 
+import java.util.List;
+import java.util.Set;
+
 /**
  * @author JHoves
  * @create 2023-01-04 14:43
@@ -32,5 +35,6 @@ public interface UserDao {
     //更新用户具体信息
     Integer updateUserInfos(UserInfo userInfo);
 
-
+    //获取用户信息列表
+    List<UserInfo> getUserInfoByUserIds(Set<Long> userIdList);
 }
