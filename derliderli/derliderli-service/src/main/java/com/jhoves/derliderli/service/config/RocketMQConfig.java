@@ -1,6 +1,12 @@
 package com.jhoves.derliderli.service.config;
 
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.jhoves.derliderli.domain.UserFollowing;
+import com.jhoves.derliderli.domain.UserMoment;
 import com.jhoves.derliderli.domain.constant.UserMomentConstant;
+import com.jhoves.derliderli.service.UserFollowingService;
+import io.netty.util.internal.StringUtil;
 import org.apache.rocketmq.client.consumer.DefaultMQPushConsumer;
 import org.apache.rocketmq.client.consumer.listener.ConsumeConcurrentlyContext;
 import org.apache.rocketmq.client.consumer.listener.ConsumeConcurrentlyStatus;
@@ -12,7 +18,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.util.StringUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -23,6 +31,9 @@ import java.util.List;
 public class RocketMQConfig {
     @Value("${rocketmq.name.server.address}")
     private String nameServerAddr;
+
+    @Autowired
+    private UserFollowingService userFollowingService;
 
     @Autowired
     private RedisTemplate<String,String> redisTemplate;
@@ -37,7 +48,6 @@ public class RocketMQConfig {
     }
 
     //消息消费者
-
     @Bean("momentConsumer")
     public DefaultMQPushConsumer momentConsumer() throws Exception{
         DefaultMQPushConsumer consumer = new DefaultMQPushConsumer(UserMomentConstant.GROUP_MOMENTS);
@@ -48,8 +58,29 @@ public class RocketMQConfig {
         consumer.registerMessageListener(new MessageListenerConcurrently() {
             @Override
             public ConsumeConcurrentlyStatus consumeMessage(List<MessageExt> msgs, ConsumeConcurrentlyContext context) {
-                for (MessageExt msg : msgs){
-                    System.out.println(msg);
+                //获取mq的动态
+                MessageExt msg = msgs.get(0);
+                if(msg == null){
+                    return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
+                }
+                String bodyStr = new String(msg.getBody());
+                UserMoment userMoment = JSONObject.toJavaObject(JSONObject.parseObject(bodyStr),UserMoment.class);
+                //进行操作
+                Long userId = userMoment.getUserId();
+                List<UserFollowing> fanList = userFollowingService.getUserFans(userId);
+                for (UserFollowing fan : fanList){
+                    //发送给粉丝动态
+                    //发送到redis
+                    String key = "subscribed-" + fan.getUserId();
+                    String subscribedListStr = redisTemplate.opsForValue().get(key);
+                    List<UserMoment> subscribedList;
+                    if(StringUtil.isNullOrEmpty(subscribedListStr)){
+                        subscribedList = new ArrayList<>();
+                    }else {
+                        subscribedList = JSONArray.parseArray(subscribedListStr,UserMoment.class);
+                    }
+                    subscribedList.add(userMoment);
+                    redisTemplate.opsForValue().set(key,JSONObject.toJSONString(subscribedList));
                 }
                 return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
             }
