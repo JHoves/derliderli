@@ -3,6 +3,9 @@ package com.jhoves.derliderli.api;
 import com.jhoves.derliderli.api.support.UserSupport;
 import com.jhoves.derliderli.domain.JsonResponse;
 import com.jhoves.derliderli.domain.UserMoment;
+import com.jhoves.derliderli.domain.annotation.ApiLimitedRole;
+import com.jhoves.derliderli.domain.annotation.DataLimited;
+import com.jhoves.derliderli.domain.constant.AuthRoleConstant;
 import com.jhoves.derliderli.service.UserMomentsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,6 +29,8 @@ public class UserMomentsApi {
     private UserSupport userSupport;
 
     //用户发布动态
+    @ApiLimitedRole(limitedRoleCodeList = {AuthRoleConstant.ROLE_LV0})
+    @DataLimited
     @PostMapping("/user-moments")
     public JsonResponse<String> addUserMoments(@RequestBody UserMoment userMoment) throws Exception {
         Long userId = userSupport.getCurrentUserId();
