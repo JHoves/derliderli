@@ -9,7 +9,9 @@ import com.jhoves.derliderli.service.util.RSAUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author JHoves
@@ -89,6 +91,28 @@ public class UserApi {
             result.setList(checkedUserInfoList);
         }
         return new JsonResponse<>(result);
+    }
+
+    //双token实现登录
+    @PostMapping("/user-dts")
+    public JsonResponse<Map<String,Object>> loginForDts(@RequestBody User user) throws Exception{
+        Map<String,Object> map = userService.loginForDts(user);
+        return new JsonResponse<>(map);
+    }
+
+    @DeleteMapping("/refresh-tokens")
+    public JsonResponse<String> logout(HttpServletRequest request){
+        String refreshToken = request.getHeader("refreshToken");
+        Long userId = userSupport.getCurrentUserId();
+        userService.logout(refreshToken,userId);
+        return JsonResponse.success();
+    }
+
+    @PostMapping("/access-tokens")
+    public JsonResponse<String> refreshToken(HttpServletRequest request) throws Exception {
+        String refreshToken = request.getHeader("refreshToken");
+        String accessToken = userService.refreshAccessToken(refreshToken);
+        return new JsonResponse<>(accessToken);
     }
 
 }

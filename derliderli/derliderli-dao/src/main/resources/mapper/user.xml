@@ -152,5 +152,33 @@
         limit #{start}, #{limit}
     </select>
 
+    <delete id="deleteRefreshToken">
+        delete from
+            t_refresh_token
+        where
+            refreshToken = #{refreshToken}
+    </delete>
+    
+    <insert id="addRefreshToken">
+        insert into
+            t_refresh_token(
+                refreshToken,
+                userId,
+                createTime
+            )value(
+                #{refreshToken},
+                #{userId},
+                #{createTime}
+            )
+    </insert>
+
+    <select id="getRefreshTokenDetail" parameterType="java.lang.String" resultType="com.jhoves.derliderli.domain.RefreshTokenDetail">
+        select
+            *
+        from
+            t_refresh_token
+        where
+            refreshToken = #{refreshToken}
+    </select>
 
 </mapper>
