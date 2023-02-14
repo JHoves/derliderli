@@ -6,6 +6,7 @@ import com.jhoves.derliderli.domain.UserFollowing;
 import com.jhoves.derliderli.domain.UserMoment;
 import com.jhoves.derliderli.domain.constant.UserMomentConstant;
 import com.jhoves.derliderli.service.UserFollowingService;
+import com.jhoves.derliderli.service.websocket.WebSocketService;
 import io.netty.util.internal.StringUtil;
 import org.apache.rocketmq.client.consumer.DefaultMQPushConsumer;
 import org.apache.rocketmq.client.consumer.listener.ConsumeConcurrentlyContext;
@@ -20,6 +21,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.util.StringUtils;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -85,6 +87,54 @@ public class RocketMQConfig {
                 return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
             }
         });
+        consumer.start();
+        return consumer;
+    }
+
+    //弹幕生产者
+    @Bean("danmusProducer")
+    public DefaultMQProducer danmusProducer() throws Exception{
+        //实例化消息生产者producer
+        DefaultMQProducer producer = new DefaultMQProducer(UserMomentConstant.GROUP_DANMUS);
+        //设置NameServer的地址
+        producer.setNamesrvAddr(nameServerAddr);
+        //启动Producer实例
+        producer.start();
+        return producer;
+    }
+
+    //弹幕消费者
+    @Bean("danmusConsumer")
+    public DefaultMQPushConsumer danmusConsumer() throws Exception{
+        // 实例化消费者
+        DefaultMQPushConsumer consumer = new DefaultMQPushConsumer(UserMomentConstant.GROUP_DANMUS);
+        // 设置NameServer的地址
+        consumer.setNamesrvAddr(nameServerAddr);
+        // 订阅一个或者多个Topic，以及Tag来过滤需要消费的消息
+        consumer.subscribe(UserMomentConstant.TOPIC_DANMUS, "*");
+        // 注册回调实现类来处理从broker拉取回来的消息
+        consumer.registerMessageListener(new MessageListenerConcurrently() {
+            @Override
+            public ConsumeConcurrentlyStatus consumeMessage(List<MessageExt> msgs, ConsumeConcurrentlyContext context) {
+                MessageExt msg = msgs.get(0);
+                byte[] msgByte = msg.getBody();
+                String bodyStr = new String(msgByte);
+                JSONObject jsonObject = JSONObject.parseObject(bodyStr);
+                String sessionId = jsonObject.getString("sessionId");
+                String message = jsonObject.getString("message");
+                WebSocketService webSocketService = WebSocketService.WEBSOCKET_MAP.get(sessionId);
+                if(webSocketService.getSession().isOpen()){
+                    try {
+                        webSocketService.sendMessage(message);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                // 标记该消息已经被成功消费
+                return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
+            }
+        });
+        // 启动消费者实例
         consumer.start();
         return consumer;
     }

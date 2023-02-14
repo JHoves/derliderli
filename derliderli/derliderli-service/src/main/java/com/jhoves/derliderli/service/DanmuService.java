@@ -32,6 +32,7 @@ public class DanmuService {
     }
 
     @Async
+    //异步调用
     public void asyncAddDanmu(Danmu danmu){
         danmuDao.addDanmu(danmu);
     }
