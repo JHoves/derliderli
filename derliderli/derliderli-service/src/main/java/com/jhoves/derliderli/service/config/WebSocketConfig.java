@@ -10,7 +10,7 @@ import org.springframework.web.socket.server.standard.ServerEndpointExporter;
  */
 @Configuration
 public class WebSocketConfig {
-    //用来发现web服务的
+    //用来发现websocket服务的
     @Bean
     public ServerEndpointExporter serverEndpointExporter(){
         return new ServerEndpointExporter();

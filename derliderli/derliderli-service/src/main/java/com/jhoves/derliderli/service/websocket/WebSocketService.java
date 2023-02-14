@@ -1,15 +1,21 @@
 package com.jhoves.derliderli.service.websocket;
 
+import com.alibaba.fastjson.JSONObject;
+import com.jhoves.derliderli.domain.Danmu;
+import com.jhoves.derliderli.service.DanmuService;
+import com.jhoves.derliderli.service.util.TokenUtil;
+import io.netty.util.internal.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 import javax.websocket.*;
+import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
-import java.util.Collection;
-import java.util.List;
+import java.util.Date;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -17,7 +23,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * 需要考虑并发问题
  */
 @Component
-@ServerEndpoint("/imserver")
+@ServerEndpoint("/imserver/{token}")
 public class WebSocketService {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -32,6 +38,8 @@ public class WebSocketService {
 
     private String sessionId;
 
+    private Long userId;
+
     //解决多例模式下bean注入的问题 ↓
     private static ApplicationContext APPLICATION_CONTEXT;
 
@@ -41,7 +49,10 @@ public class WebSocketService {
 
     //客户端与服务端建立连接
     @OnOpen
-    public void openConnection(Session session){
+    public void openConnection(Session session, @PathParam("token") String token){
+        try {
+            this.userId = TokenUtil.verifyToken(token);
+        }catch (Exception ignored){}
         this.sessionId = session.getId();
         this.session = session;
         if(WEBSOCKET_MAP.containsKey(sessionId)){
@@ -71,7 +82,34 @@ public class WebSocketService {
 
     @OnMessage
     public void OnMessage(String message){
+        logger.info("用户信息：" + sessionId + "，报文" + message);
+        if(!StringUtil.isNullOrEmpty(message)){
+            try {
+                //群发消息
+                for(Map.Entry<String,WebSocketService> entry : WEBSOCKET_MAP.entrySet()){
+                    WebSocketService webSocketService = entry.getValue();
+                    if(webSocketService.session.isOpen()){
+                        webSocketService.sendMessage(message);
+                    }
+                }
+                if(this.userId != null){
+                    //保存弹幕到数据库
+                    Danmu danmu = JSONObject.parseObject(message,Danmu.class);
+                    danmu.setUserId(userId);
+                    danmu.setCreateTime(new Date());
+                    DanmuService danmuService = (DanmuService)APPLICATION_CONTEXT.getBean("danmuService");
+                    danmuService.addDanmu(danmu);
 
+                    //保存弹幕到redis
+                    danmuService.addDanmusToRedis(danmu);
+                }
+
+
+            }catch (Exception e){
+                logger.error("弹幕接收出现问题");
+                e.printStackTrace();
+            }
+        }
     }
 
     @OnError
