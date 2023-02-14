@@ -1,13 +1,21 @@
 spring:
+  # datasource
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/derliderli?serverTimezone=GMT%2B8&allowMultiQueries=true&autoRec&characterEncoding=utf-8&useSSL=false
     username: root
     password: 123456
+  # redis
   redis:
     host: 127.0.0.1
     port: 6379
     password:
+  # file
+  servlet:
+    multipart:
+      max-file-size: 500MB
+      max-request-size: 1GB
+# rocketmq
 rocketmq:
     name:
       server:
@@ -15,3 +23,5 @@ rocketmq:
 # fastdfs
 fdfs:
   tracker-list: 192.168.253.144:22122
+  http:
+    storage-addr: http://192.168.253.144:8888/group1/

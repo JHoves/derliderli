@@ -1,7 +1,9 @@
 package com.jhoves;
 
+import com.jhoves.derliderli.service.websocket.WebSocketService;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.ApplicationContext;
 
 /**
  * @author JHoves
@@ -10,6 +12,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class derliderliApplication {
     public static void main(String[] args) {
-        SpringApplication.run(derliderliApplication.class,args);
+        ApplicationContext app = SpringApplication.run(derliderliApplication.class, args);
+        WebSocketService.setApplicationContext(app);
     }
 }

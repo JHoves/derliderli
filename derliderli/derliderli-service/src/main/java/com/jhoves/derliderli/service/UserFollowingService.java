@@ -7,7 +7,6 @@ import com.jhoves.derliderli.domain.UserFollowing;
 import com.jhoves.derliderli.domain.UserInfo;
 import com.jhoves.derliderli.domain.constant.UserConstant;
 import com.jhoves.derliderli.domain.exception.ConditionException;
-import com.jhoves.derliderli.service.util.FollowingGroupService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

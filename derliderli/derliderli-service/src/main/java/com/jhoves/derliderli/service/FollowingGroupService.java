@@ -1,4 +1,4 @@
-package com.jhoves.derliderli.service.util;
+package com.jhoves.derliderli.service;
 
 import com.jhoves.derliderli.dao.FollowingGroupDao;
 import com.jhoves.derliderli.domain.FollowingGroup;
