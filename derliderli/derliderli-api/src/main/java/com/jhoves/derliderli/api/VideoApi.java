@@ -2,6 +2,7 @@ package com.jhoves.derliderli.api;
 
 import com.jhoves.derliderli.api.support.UserSupport;
 import com.jhoves.derliderli.domain.*;
+import com.jhoves.derliderli.service.ElasticsearchService;
 import com.jhoves.derliderli.service.VideoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -23,12 +24,17 @@ public class VideoApi {
     @Autowired
     private UserSupport userSupport;
 
+    @Autowired
+    private ElasticsearchService elasticsearchService;
+
     //视频投稿
     @PostMapping("/videos")
     public JsonResponse<String> addVideos(@RequestBody Video video) {
         Long userId = userSupport.getCurrentUserId();
         video.setUserId(userId);
         videoService.addVideos(video);
+        //在es中添加一条视频数据
+        elasticsearchService.addVideo(video);
         return JsonResponse.success();
     }
 

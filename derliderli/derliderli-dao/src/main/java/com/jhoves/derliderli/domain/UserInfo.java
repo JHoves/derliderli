@@ -1,7 +1,10 @@
 package com.jhoves.derliderli.domain;
 
-import com.sun.org.apache.xpath.internal.operations.Or;
 import lombok.Data;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.elasticsearch.annotations.Document;
+import org.springframework.data.elasticsearch.annotations.Field;
+import org.springframework.data.elasticsearch.annotations.FieldType;
 
 import java.util.Date;
 
@@ -10,11 +13,14 @@ import java.util.Date;
  * @create 2023-01-04 14:38
  */
 @Data
+@Document(indexName = "user-infos")
 public class UserInfo {
+    @Id
     private Long id;
 
     private Long userId;
 
+    @Field(type = FieldType.Text)
     private String nick;
 
     private String avatar;
@@ -25,8 +31,10 @@ public class UserInfo {
 
     private String birth;
 
+    @Field(type = FieldType.Date)
     private Date createTime;
 
+    @Field(type = FieldType.Date)
     private Date updateTime;
 
     private Boolean followed;
