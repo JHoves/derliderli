@@ -53,7 +53,7 @@ public class UserFollowingService {
         userFollowingDao.addUserFollowing(userFollowing);
     }
 
-    //获取用户关注列表(todo 学习逻辑)
+    //获取用户关注列表 todo 学习逻辑
     //第一步：获取关注的用户列表
     //第二步：根据关注用户的id查询关注用户的基本信息
     //第三步：将关注用户按关注分组进行分类

@@ -22,11 +22,12 @@ public class UserAuthService {
     private AuthRoleService authRoleService;
 
     public UserAuthorities getUserAuthorities(Long userId) {
+        //根据当前用户id获取用户角色信息
         List<UserRole> userRoleList = userRoleService.getUserRoleByUserId(userId);
         Set<Long> roleIdSet = userRoleList.stream().map(UserRole::getRoleId).collect(Collectors.toSet());
-        //查一下操作权限
+        //根据得到的roleIdSet查一下操作权限，获得可以操作的页面元素列表
         List<AuthRoleElementOperation> roleElementOperationList = authRoleService.getRoleElementOperationsByRoleIds(roleIdSet);
-        //查一下菜单权限
+        //根据得到的roleIdSet查一下页面访问权限，获得可以访问的页面列表
         List<AuthRoleMenu> authRoleMenuList = authRoleService.getAuthRoleMenusByRoleIds(roleIdSet);
         UserAuthorities userAuthorities = new UserAuthorities();
         userAuthorities.setRoleElementOperationList(roleElementOperationList);

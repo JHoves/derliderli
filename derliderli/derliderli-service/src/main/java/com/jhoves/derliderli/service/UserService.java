@@ -174,7 +174,9 @@ public class UserService {
         }
 
         Long userId = dbUser.getId();
+        //accessToken: 真正用来获取数据的权限
         String accessToken = TokenUtil.generateToken(userId);
+        //refreshToken: 用来获取accessToken
         String refreshToken = TokenUtil.generateRefreshToken(userId);
 
         //保存refresh token 到数据库

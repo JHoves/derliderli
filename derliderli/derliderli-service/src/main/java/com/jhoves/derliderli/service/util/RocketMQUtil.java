@@ -22,7 +22,7 @@ public class RocketMQUtil {
 
     //异步发送信息
     public static void asyncSendMsg(DefaultMQProducer producer, Message msg) throws Exception{
-       int messageCount = 2;
+        int messageCount = 2;
         CountDownLatch2 countDownLatch = new CountDownLatch2(messageCount);
         for (int i=0;i<messageCount;i++){
             producer.send(msg, new SendCallback() {
