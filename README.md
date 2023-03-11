@@ -2,7 +2,7 @@
 
 ## 简介
 
-一款基于SpringCloud微服务架构和SSM框架的高仿B站弹幕视频播放网站。整个项目涵盖了用户服务核心功能、音视频核心功能以及后台管理功能。
+一款基于SpringCloud微服务架构和SSM框架的弹幕视频播放网站。整个项目涵盖了用户服务核心功能、音视频核心功能以及后台管理功能。
 
 ## 功能介绍
 
@@ -18,5 +18,5 @@
 
 ## 使用技术
 
-- SpringCloud + SpringBoot + SpringMVC + MyBatis
+- SpringCloud + SpringBoot + SpringMVC + MyBatis + Redis + FastDFS + RocketMQ
 
